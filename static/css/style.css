@@ -534,8 +534,86 @@ body {
 }
 
 /* ============================================================
-   响应式适配
+   响应式适配:手机 / 平板 / 电脑
+   策略:移动优先,随屏幕变大逐步放大笔记本尺寸与字号
    ============================================================ */
+
+/* 大屏手机 / 小平板竖屏 (481px ~ 767px) */
+@media (min-width: 481px) {
+    .notebook {
+        max-width: 520px;
+        padding: 48px 32px 48px 64px;
+    }
+
+    .notebook::before {
+        left: 44px;
+    }
+
+    .home-title { font-size: 38px; }
+    .home-desc { font-size: 20px; }
+    .question-text { font-size: 25px; }
+    .option-item { font-size: 20px; padding: 18px 20px; }
+    .result-emoji { font-size: 104px; }
+    .result-type { font-size: 48px; }
+    .result-traits { font-size: 19px; }
+}
+
+/* 平板横屏 / 桌面电脑 (≥ 768px) */
+@media (min-width: 768px) {
+    .screen {
+        padding: 40px 24px 60px;
+    }
+
+    .notebook {
+        max-width: 600px;
+        min-height: 640px;
+        padding: 56px 40px 56px 72px;
+    }
+
+    .notebook::before {
+        left: 52px;
+    }
+
+    .home-title { font-size: 44px; }
+    .home-emoji-row .emoji-big { font-size: 52px; }
+    .home-desc { font-size: 21px; margin-bottom: 44px; }
+    .btn-primary { font-size: 24px; padding: 16px 28px; }
+    .progress-text { font-size: 22px; }
+    .question-text { font-size: 27px; margin-bottom: 32px; }
+    .option-item { font-size: 21px; padding: 20px 22px; }
+    .option-key { width: 36px; height: 36px; font-size: 20px; }
+    .result-emoji { font-size: 120px; }
+    .result-animal-label { font-size: 24px; }
+    .result-type { font-size: 54px; }
+    .result-nickname { font-size: 22px; }
+    .result-traits { font-size: 20px; padding: 18px 20px; }
+    .result-section-title { font-size: 22px; }
+    .result-list li { font-size: 18px; }
+    .dim-bar-label { font-size: 17px; }
+    .dim-bar-track { height: 12px; }
+}
+
+/* 大屏桌面 (≥ 1024px) */
+@media (min-width: 1024px) {
+    .notebook {
+        max-width: 640px;
+        min-height: 680px;
+        padding: 64px 48px 64px 80px;
+    }
+
+    .notebook::before {
+        left: 58px;
+    }
+
+    .home-title { font-size: 48px; }
+    .question-text { font-size: 28px; }
+    .option-item { font-size: 22px; }
+    .result-emoji { font-size: 132px; }
+    .result-type { font-size: 58px; }
+    .result-traits { font-size: 21px; }
+}
+
+/* 小屏手机 (≤ 380px) */
 @media (max-width: 380px) {
     .notebook {
         padding: 32px 16px 32px 48px;
@@ -545,24 +623,11 @@ body {
         left: 32px;
     }
 
-    .home-title {
-        font-size: 28px;
-    }
-
-    .question-text {
-        font-size: 20px;
-    }
-
-    .option-item {
-        font-size: 17px;
-        padding: 14px;
-    }
-
-    .result-emoji {
-        font-size: 72px;
-    }
-
-    .result-type {
-        font-size: 34px;
-    }
+    .home-title { font-size: 28px; }
+    .question-text { font-size: 20px; }
+    .option-item { font-size: 17px; padding: 14px; }
+    .result-emoji { font-size: 72px; }
+    .result-type { font-size: 34px; }
+    .emoji-big { font-size: 36px; }
+    .btn-primary { font-size: 20px; padding: 12px 20px; }
 }
