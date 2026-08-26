@@ -1,0 +1,568 @@
+/* ============================================================
+   16型动物版MBTI性格测试 - 手写笔记本风格样式
+   设计要点:纸张质感 + 横线本格 + 手写字体 + 涂鸦装饰
+   ============================================================ */
+
+/* ---------- 基础重置 ---------- */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+}
+
+html, body {
+    width: 100%;
+    min-height: 100vh;
+}
+
+body {
+    /* 纸张底色 + 微噪点质感 */
+    background-color: #f4ecd8;
+    background-image:
+        radial-gradient(circle at 20% 30%, rgba(210, 180, 140, 0.12) 0%, transparent 40%),
+        radial-gradient(circle at 80% 70%, rgba(210, 180, 140, 0.10) 0%, transparent 40%),
+        radial-gradient(circle at 50% 50%, rgba(245, 230, 200, 0.6) 0%, transparent 70%);
+    font-family: "Ma Shan Zheng", "KaiTi", "楷体", cursive;
+    color: #3d2b1f;
+    line-height: 1.7;
+    overflow-x: hidden;
+}
+
+/* ---------- 屏幕切换 ---------- */
+.screen {
+    display: none;
+    width: 100%;
+    min-height: 100vh;
+    padding: 20px 16px 40px;
+    justify-content: center;
+    align-items: flex-start;
+}
+
+.screen.active {
+    display: flex;
+    animation: fadeIn 0.5s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* ---------- 笔记本主体 ---------- */
+.notebook {
+    position: relative;
+    width: 100%;
+    max-width: 480px;
+    min-height: 560px;
+    margin: 0 auto;
+    background-color: #fdfbf3;
+    /* 横线本格效果 */
+    background-image:
+        repeating-linear-gradient(
+            transparent,
+            transparent 38px,
+            rgba(100, 130, 180, 0.18) 38px,
+            rgba(100, 130, 180, 0.18) 39px
+        );
+    /* 纸张阴影与边角质感 */
+    box-shadow:
+        0 2px 8px rgba(0, 0, 0, 0.08),
+        0 8px 24px rgba(0, 0, 0, 0.06),
+        inset 0 0 60px rgba(220, 200, 160, 0.15);
+    border-radius: 4px;
+    padding: 40px 24px 40px 56px;
+    overflow: hidden;
+}
+
+/* 左侧红色装订线(笔记本打孔边) */
+.notebook::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 38px;
+    width: 2px;
+    height: 100%;
+    background: repeating-linear-gradient(
+        to bottom,
+        #d96459 0,
+        #d96459 8px,
+        transparent 8px,
+        transparent 22px
+    );
+}
+
+/* 右侧纸边微微泛黄 */
+.notebook::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 12px;
+    height: 100%;
+    background: linear-gradient(to left, rgba(200, 170, 120, 0.25), transparent);
+    pointer-events: none;
+}
+
+.notebook-content {
+    position: relative;
+    z-index: 2;
+}
+
+/* ---------- 涂鸦装饰 ---------- */
+.doodle {
+    position: absolute;
+    font-size: 28px;
+    color: #d96459;
+    opacity: 0.5;
+    z-index: 3;
+    pointer-events: none;
+    text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.05);
+}
+
+.doodle-star { transform: rotate(-15deg); }
+.doodle-heart { color: #e07a5f; transform: rotate(10deg); }
+.doodle-arrow { color: #81b29a; }
+.doodle-dot { color: #f2cc8f; transform: rotate(20deg); }
+
+/* ---------- 通用按钮 ---------- */
+.btn-primary {
+    display: block;
+    width: 100%;
+    margin: 0 auto;
+    padding: 14px 24px;
+    font-family: "ZCOOL KuaiLe", "Ma Shan Zheng", cursive;
+    font-size: 22px;
+    color: #fff;
+    background: #3d405b;
+    border: 2px solid #2b2d42;
+    border-radius: 8px;
+    cursor: pointer;
+    box-shadow: 3px 3px 0 rgba(0, 0, 0, 0.15);
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+    letter-spacing: 2px;
+}
+
+.btn-primary:hover {
+    transform: translate(-1px, -1px);
+    box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.2);
+    background: #4a4d6a;
+}
+
+.btn-primary:active {
+    transform: translate(2px, 2px);
+    box-shadow: 1px 1px 0 rgba(0, 0, 0, 0.15);
+}
+
+/* ============================================================
+   首页样式
+   ============================================================ */
+.home-tag {
+    text-align: center;
+    font-size: 18px;
+    color: #81b29a;
+    margin-bottom: 12px;
+    font-family: "Caveat", "Ma Shan Zheng", cursive;
+    letter-spacing: 3px;
+}
+
+.home-title {
+    text-align: center;
+    font-family: "ZCOOL KuaiLe", "Ma Shan Zheng", cursive;
+    font-size: 34px;
+    color: #3d405b;
+    line-height: 1.4;
+    margin-bottom: 24px;
+    text-shadow: 2px 2px 0 rgba(217, 100, 89, 0.2);
+}
+
+.home-emoji-row {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin-bottom: 28px;
+}
+
+.emoji-big {
+    font-size: 42px;
+    filter: drop-shadow(2px 2px 2px rgba(0, 0, 0, 0.1));
+    animation: bounce 2s ease-in-out infinite;
+}
+
+.emoji-big:nth-child(2) { animation-delay: 0.2s; }
+.emoji-big:nth-child(3) { animation-delay: 0.4s; }
+.emoji-big:nth-child(4) { animation-delay: 0.6s; }
+
+@keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-8px); }
+}
+
+.home-desc {
+    text-align: center;
+    font-size: 19px;
+    color: #5a4a3a;
+    margin-bottom: 36px;
+    line-height: 1.9;
+}
+
+.home-footer {
+    text-align: center;
+    margin-top: 20px;
+    font-size: 15px;
+    color: #a89682;
+    font-family: "Caveat", "Ma Shan Zheng", cursive;
+}
+
+/* ============================================================
+   测试页样式
+   ============================================================ */
+.progress-bar-wrap {
+    margin-bottom: 32px;
+}
+
+.progress-text {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    font-size: 20px;
+    color: #3d405b;
+    margin-bottom: 10px;
+    font-family: "ZCOOL KuaiLe", "Ma Shan Zheng", cursive;
+}
+
+.progress-total {
+    font-size: 16px;
+    color: #a89682;
+    font-family: "Ma Shan Zheng", cursive;
+}
+
+.progress-bar {
+    width: 100%;
+    height: 12px;
+    background: #ede4d0;
+    border: 2px solid #c9b89a;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: inset 1px 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+.progress-fill {
+    height: 100%;
+    width: 5%;
+    background: repeating-linear-gradient(
+        45deg,
+        #81b29a 0,
+        #81b29a 8px,
+        #6a9a82 8px,
+        #6a9a82 16px
+    );
+    border-radius: 8px;
+    transition: width 0.4s ease;
+}
+
+.question-card {
+    margin-bottom: 24px;
+}
+
+.q-dimension-tag {
+    display: inline-block;
+    padding: 2px 14px;
+    font-size: 15px;
+    color: #fff;
+    background: #d96459;
+    border-radius: 20px;
+    margin-bottom: 16px;
+    transform: rotate(-2deg);
+    font-family: "ZCOOL KuaiLe", "Ma Shan Zheng", cursive;
+}
+
+.question-text {
+    font-size: 23px;
+    color: #3d2b1f;
+    margin-bottom: 28px;
+    line-height: 1.6;
+    font-family: "Ma Shan Zheng", "KaiTi", cursive;
+}
+
+.options-list {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.option-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px 18px;
+    background: #fdfbf3;
+    border: 2px solid #c9b89a;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.18s ease;
+    font-size: 19px;
+    color: #3d2b1f;
+    line-height: 1.5;
+    font-family: "Ma Shan Zheng", "KaiTi", cursive;
+    text-align: left;
+}
+
+.option-item:hover {
+    background: #fff8e7;
+    border-color: #d96459;
+    transform: translateX(4px);
+    box-shadow: 2px 2px 0 rgba(217, 100, 89, 0.2);
+}
+
+.option-item:active {
+    transform: translateX(2px) scale(0.99);
+}
+
+.option-key {
+    flex-shrink: 0;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    color: #fff;
+    background: #81b29a;
+    border-radius: 50%;
+    font-family: "ZCOOL KuaiLe", cursive;
+}
+
+.option-item:hover .option-key {
+    background: #d96459;
+}
+
+.option-text {
+    flex: 1;
+}
+
+.test-tip {
+    text-align: center;
+    margin-top: 28px;
+    font-size: 15px;
+    color: #a89682;
+    font-family: "Caveat", "Ma Shan Zheng", cursive;
+    letter-spacing: 1px;
+}
+
+/* ============================================================
+   结果页样式
+   ============================================================ */
+.result-loading {
+    text-align: center;
+    padding: 80px 0;
+    color: #81b29a;
+}
+
+.loading-spinner {
+    width: 48px;
+    height: 48px;
+    margin: 0 auto 16px;
+    border: 4px solid #ede4d0;
+    border-top-color: #d96459;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+.result-tag {
+    text-align: center;
+    font-size: 18px;
+    color: #81b29a;
+    margin-bottom: 8px;
+    letter-spacing: 3px;
+    font-family: "Caveat", "Ma Shan Zheng", cursive;
+}
+
+.result-animal-wrap {
+    text-align: center;
+    margin-bottom: 16px;
+}
+
+.result-emoji {
+    display: inline-block;
+    font-size: 88px;
+    filter: drop-shadow(3px 3px 4px rgba(0, 0, 0, 0.15));
+    animation: pop 0.6s ease;
+}
+
+@keyframes pop {
+    0% { transform: scale(0.3); opacity: 0; }
+    60% { transform: scale(1.1); }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+.result-animal-label {
+    font-size: 22px;
+    color: #d96459;
+    margin-top: 4px;
+    font-family: "ZCOOL KuaiLe", "Ma Shan Zheng", cursive;
+}
+
+.result-type-box {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.result-type {
+    display: inline-block;
+    font-size: 40px;
+    color: #3d405b;
+    font-family: "Caveat", "Ma Shan Zheng", cursive;
+    font-weight: 700;
+    letter-spacing: 4px;
+}
+
+.result-nickname {
+    display: inline-block;
+    margin-left: 10px;
+    font-size: 20px;
+    color: #81b29a;
+    font-family: "ZCOOL KuaiLe", "Ma Shan Zheng", cursive;
+    transform: translateY(-4px);
+}
+
+.result-traits {
+    background: #fff8e7;
+    border-left: 4px solid #d96459;
+    padding: 14px 16px;
+    border-radius: 6px;
+    font-size: 18px;
+    color: #5a4a3a;
+    line-height: 1.8;
+    margin-bottom: 24px;
+    font-family: "Ma Shan Zheng", "KaiTi", cursive;
+}
+
+/* 维度占比条 */
+.dimension-bars {
+    margin-bottom: 24px;
+}
+
+.dim-bar {
+    margin-bottom: 14px;
+}
+
+.dim-bar-label {
+    display: flex;
+    justify-content: space-between;
+    font-size: 16px;
+    color: #5a4a3a;
+    margin-bottom: 6px;
+    font-family: "Ma Shan Zheng", cursive;
+}
+
+.dim-bar-label .dim-letter {
+    font-family: "ZCOOL KuaiLe", cursive;
+    color: #3d405b;
+}
+
+.dim-bar-track {
+    height: 10px;
+    background: #ede4d0;
+    border-radius: 6px;
+    overflow: hidden;
+    display: flex;
+}
+
+.dim-bar-fill-left,
+.dim-bar-fill-right {
+    height: 100%;
+    transition: width 0.6s ease;
+}
+
+.dim-bar-fill-left { background: #81b29a; }
+.dim-bar-fill-right { background: #d96459; }
+
+.result-section {
+    margin-bottom: 22px;
+}
+
+.result-section-title {
+    font-size: 20px;
+    color: #3d405b;
+    margin-bottom: 10px;
+    font-family: "ZCOOL KuaiLe", "Ma Shan Zheng", cursive;
+}
+
+.result-list {
+    list-style: none;
+    padding-left: 4px;
+}
+
+.result-list li {
+    position: relative;
+    padding-left: 26px;
+    font-size: 17px;
+    color: #5a4a3a;
+    margin-bottom: 8px;
+    line-height: 1.6;
+    font-family: "Ma Shan Zheng", cursive;
+}
+
+.result-list li::before {
+    content: "✦";
+    position: absolute;
+    left: 4px;
+    top: 0;
+    color: #d96459;
+    font-size: 14px;
+}
+
+.career-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.career-tag {
+    padding: 4px 14px;
+    background: #ede4d0;
+    border: 1.5px solid #c9b89a;
+    border-radius: 20px;
+    font-size: 15px;
+    color: #5a4a3a;
+    font-family: "Ma Shan Zheng", cursive;
+}
+
+/* ============================================================
+   响应式适配
+   ============================================================ */
+@media (max-width: 380px) {
+    .notebook {
+        padding: 32px 16px 32px 48px;
+    }
+
+    .notebook::before {
+        left: 32px;
+    }
+
+    .home-title {
+        font-size: 28px;
+    }
+
+    .question-text {
+        font-size: 20px;
+    }
+
+    .option-item {
+        font-size: 17px;
+        padding: 14px;
+    }
+
+    .result-emoji {
+        font-size: 72px;
+    }
+
+    .result-type {
+        font-size: 34px;
+    }
+}

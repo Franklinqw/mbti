@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>16型动物版MBTI性格测试</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <!-- 手写字体:马善政体(中文手写) + 站酷快乐体(标题趣味) + Caveat(英文点缀) -->
+    <link href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=ZCOOL+KuaiLe&family=Caveat:wght@500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <div id="app">
+        <!-- ============ 首页 ============ -->
+        <section id="home-screen" class="screen active">
+            <div class="notebook">
+                <!-- 装饰涂鸦 -->
+                <span class="doodle doodle-star" style="top:8%;left:10%;">✦</span>
+                <span class="doodle doodle-heart" style="top:14%;right:12%;">♡</span>
+                <span class="doodle doodle-arrow" style="bottom:18%;left:8%;">↘</span>
+                <span class="doodle doodle-dot" style="top:40%;right:6%;">✿</span>
+
+                <div class="notebook-content">
+                    <div class="home-tag">~ 性格测试 ~</div>
+                    <h1 class="home-title">16型动物版<br>MBTI性格测试</h1>
+                    <div class="home-emoji-row">
+                        <span class="emoji-big">🦉</span>
+                        <span class="emoji-big">🦁</span>
+                        <span class="emoji-big">🦊</span>
+                        <span class="emoji-big">🐬</span>
+                    </div>
+                    <p class="home-desc">
+                        每个人都有一只专属的"灵魂动物"🐾<br>
+                        通过 20 道趣味测试题,<br>
+                        发现你对应的动物形象吧!
+                    </p>
+                    <button class="btn-primary" id="btn-start">
+                        开始测试 →
+                    </button>
+                    <div class="home-footer">✎ 共 20 题 · 约 3 分钟</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ============ 测试页 ============ -->
+        <section id="test-screen" class="screen">
+            <div class="notebook">
+                <div class="notebook-content">
+                    <div class="progress-bar-wrap">
+                        <div class="progress-text">
+                            <span id="current-q">第 1 题</span>
+                            <span class="progress-total">/ 共 <span id="total-q">20</span> 题</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="progress-fill"></div>
+                        </div>
+                    </div>
+
+                    <div class="question-card" id="question-card">
+                        <div class="q-dimension-tag" id="dimension-tag">维度</div>
+                        <h2 class="question-text" id="question-text">题目内容</h2>
+                        <div class="options-list" id="options-list">
+                            <!-- 选项由 JS 动态生成 -->
+                        </div>
+                    </div>
+
+                    <div class="test-tip">点击选项即可进入下一题</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ============ 结果页 ============ -->
+        <section id="result-screen" class="screen">
+            <div class="notebook">
+                <span class="doodle doodle-star" style="top:6%;right:14%;">✦</span>
+                <span class="doodle doodle-heart" style="bottom:10%;left:10%;">♡</span>
+                <div class="notebook-content">
+                    <div class="result-loading" id="result-loading">
+                        <div class="loading-spinner"></div>
+                        <p>正在揭晓你的动物形象...</p>
+                    </div>
+
+                    <div class="result-content" id="result-content" style="display:none;">
+                        <div class="result-tag">~ 你的测试结果 ~</div>
+
+                        <div class="result-animal-wrap">
+                            <span class="result-emoji" id="result-emoji">🦉</span>
+                            <div class="result-animal-label" id="result-animal-label">猫头鹰</div>
+                        </div>
+
+                        <div class="result-type-box">
+                            <span class="result-type" id="result-type">INTJ</span>
+                            <span class="result-nickname" id="result-nickname">战略家</span>
+                        </div>
+
+                        <div class="result-traits" id="result-traits">
+                            性格特点描述
+                        </div>
+
+                        <!-- 维度占比 -->
+                        <div class="dimension-bars" id="dimension-bars">
+                            <!-- 由 JS 动态生成 -->
+                        </div>
+
+                        <div class="result-section">
+                            <h3 class="result-section-title">✦ 性格优势</h3>
+                            <ul class="result-list" id="result-strengths"></ul>
+                        </div>
+
+                        <div class="result-section">
+                            <h3 class="result-section-title">✦ 注意事项</h3>
+                            <ul class="result-list" id="result-weaknesses"></ul>
+                        </div>
+
+                        <div class="result-section">
+                            <h3 class="result-section-title">✦ 适合方向</h3>
+                            <div class="career-tags" id="result-careers"></div>
+                        </div>
+
+                        <button class="btn-primary" id="btn-restart">
+                            重新测试 ↺
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <script src="/static/js/app.js"></script>
+</body>
+</html>
