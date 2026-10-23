@@ -1,261 +1,194 @@
-/**
- * 16型动物版MBTI性格测试 - 前端交互逻辑
- *
- * 职责:
- *   - 管理首页 / 测试页 / 结果页三个屏幕的切换
- *   - 调用后端 API 获取题目并逐题展示
- *   - 记录作答、提交计分、渲染结果
- *   - 处理结果页刷新等边界情况
- */
-(function () {
-    "use strict";
-
-    // ---------- DOM 元素引用 ----------
-    const homeScreen = document.getElementById("home-screen");
-    const testScreen = document.getElementById("test-screen");
-    const resultScreen = document.getElementById("result-screen");
-    const btnStart = document.getElementById("btn-start");
-    const btnRestart = document.getElementById("btn-restart");
-    const currentQEl = document.getElementById("current-q");
-    const totalQEl = document.getElementById("total-q");
-    const progressFill = document.getElementById("progress-fill");
-    const dimensionTag = document.getElementById("dimension-tag");
-    const questionText = document.getElementById("question-text");
-    const optionsList = document.getElementById("options-list");
-    const resultLoading = document.getElementById("result-loading");
-    const resultContent = document.getElementById("result-content");
-
-    // ---------- 状态 ----------
-    /** @type {Array} 题目列表 */
-    let questions = [];
-    /** @type {number} 当前题目索引(0-based) */
-    let currentIndex = 0;
-    /** @type {Array} 用户作答记录 */
-    let answers = [];
-    /** @type {boolean} 是否正在提交结果 */
-    let submitting = false;
-
-    // ---------- 维度中文名映射 ----------
-    const DIM_NAMES = {
-        "EI": { left: "外向 E", right: "内向 I" },
-        "SN": { left: "感觉 S", right: "直觉 N" },
-        "TF": { left: "思考 T", right: "情感 F" },
-        "JP": { left: "判断 J", right: "知觉 P" }
-    };
-
-    // ---------- 屏幕切换 ----------
-    function showScreen(screen) {
-        // 隐藏所有屏幕,显示目标屏幕
-        document.querySelectorAll(".screen").forEach(function (el) {
-            el.classList.remove("active");
-        });
-        screen.classList.add("active");
-        // 回到顶部
-        window.scrollTo({ top: 0, behavior: "smooth" });
+/* 本色：原生 JavaScript 单页流程，无前端依赖。 */
+(() => {
+  'use strict';
+  const $ = id => document.getElementById(id);
+  const storageKey = () => 'inner-you-progress-v2-' + (Account.user?.id || 'guest');
+  const labels = {simple: '简版测试', full: '完整版测试'};
+  const dimensions = {EI: ['外向 E', '内向 I'], SN: ['实感 S', '直觉 N'], TF: ['思考 T', '情感 F'], JP: ['判断 J', '知觉 P']};
+  let attemptId = null, identity = null;
+  let mode = 'simple', questions = [], answers = [], current = 0, busy = false, report = null, noticeTimer;
+  const storage = {
+    read() { try { return JSON.parse(localStorage.getItem(storageKey())); } catch { return null; } },
+    write(value) { try { localStorage.setItem(storageKey(), JSON.stringify(value)); return true; } catch { return false; } },
+    clear() { try { localStorage.removeItem(storageKey()); } catch { /* 浏览器可能禁用了存储。 */ } }
+  };
+  function notify(message) {
+    $('status-message').textContent = message;
+    $('status-message').hidden = false;
+    clearTimeout(noticeTimer);
+    noticeTimer = setTimeout(() => { $('status-message').hidden = true; }, 6000);
+  }
+  function show(name) {
+    for (const screen of document.querySelectorAll('.screen')) screen.hidden = screen.id !== name + '-screen';
+    window.scrollTo({top: 0, behavior: 'instant'});
+    const title = $(name + '-screen').querySelector('h1');
+    if (title) title.focus({preventScroll: true});
+  }
+  function readProgress() {
+    const saved = storage.read();
+    if (!Account.user || !saved || typeof saved.attemptId !== 'string' || !Object.hasOwn(labels, saved.mode) || !Array.isArray(saved.answers)) return null;
+    const total = saved.mode === 'full' ? 60 : 20;
+    if (saved.answers.length !== total || !Number.isInteger(saved.current) || saved.current < 0 || saved.current >= total) return null;
+    if (!saved.answers.every(a => a === null || a === 'A' || a === 'B')) return null;
+    return saved;
+  }
+  function refreshResume() {
+    const saved = readProgress();
+    $('resume-banner').hidden = !saved;
+    if (saved) $('resume-text').textContent = `${labels[saved.mode]} · 已完成 ${saved.answers.filter(Boolean).length} / ${saved.answers.length} 题`;
+  }
+  function save() {
+    const ok = storage.write({mode, answers, current, attemptId});
+    $('saved-status').textContent = ok ? '✓ 进度已保存在本机' : '当前浏览器未允许保存进度';
+  }
+  async function request(url, options) {
+    return (await Account.api(url, options)).data;
+  }
+  async function start(selectedMode, saved = null) {
+    await Account.ready;
+    if (!Account.requireLogin('#choose') || busy) return;
+    const owner = Account.user.id;
+    busy = true;
+    document.querySelectorAll('[data-mode], #resume').forEach(button => button.disabled = true);
+    try {
+      const data = saved ? await request('/api/attempts/' + saved.attemptId) : await request('/api/attempts', {method:'POST', body:JSON.stringify({mode:selectedMode})});
+      if (Account.user?.id !== owner) throw new Error('登录状态已变化，请重新开始');
+      attemptId = data.attemptId;
+      mode = selectedMode;
+      questions = data.questions;
+      // 交错展示各维度，保留 API 原始题号用于计分。
+      const groups = Object.keys(dimensions).map(dim => questions.filter(q => q.dimension === dim));
+      questions = groups[0].flatMap((_, index) => groups.map(group => group[index]));
+      answers = saved ? saved.answers.slice() : Array(questions.length).fill(null);
+      current = saved ? saved.current : 0;
+      report = null;
+      $('test-mode').textContent = labels[mode];
+      location.hash = 'test';
+      show('test');
+      renderQuestion();
+      save();
+    } catch (error) { notify('题目加载失败，请重试：' + error.message); }
+    finally {
+      busy = false;
+      document.querySelectorAll('[data-mode], #resume').forEach(button => button.disabled = false);
     }
-
-    // ---------- 启动测试 ----------
-    async function startTest() {
-        // 重置状态
-        currentIndex = 0;
-        answers = [];
-        submitting = false;
-        resultLoading.style.display = "block";
-        resultContent.style.display = "none";
-
-        // 若题库未加载,则请求后端
-        if (questions.length === 0) {
-            try {
-                const res = await fetch("/api/questions");
-                const json = await res.json();
-                if (json.code !== 0) {
-                    throw new Error(json.message || "题目加载失败");
-                }
-                questions = json.data.questions;
-                totalQEl.textContent = json.data.total;
-            } catch (err) {
-                alert("题目加载失败,请稍后重试:" + err.message);
-                return;
-            }
-        }
-
-        // 渲染第一题
-        renderQuestion();
-        showScreen(testScreen);
-    }
-
-    // ---------- 渲染当前题目 ----------
-    function renderQuestion() {
-        const q = questions[currentIndex];
-        const total = questions.length;
-
-        // 更新进度
-        currentQEl.textContent = "第 " + (currentIndex + 1) + " 题";
-        const percent = ((currentIndex) / total) * 100;
-        progressFill.style.width = percent + "%";
-
-        // 维度标签
-        const dimName = (DIM_NAMES[q.dimension] || {}).left || q.dimension;
-        dimensionTag.textContent = q.dimension + " 维度";
-
-        // 题干
-        questionText.textContent = q.text;
-
-        // 选项
-        optionsList.innerHTML = "";
-        q.options.forEach(function (opt) {
-            const item = document.createElement("button");
-            item.className = "option-item";
-            item.innerHTML =
-                '<span class="option-key">' + opt.key + "</span>" +
-                '<span class="option-text">' + opt.text + "</span>";
-            // 选择选项后自动进入下一题
-            item.addEventListener("click", function () {
-                selectOption(opt.key);
-            });
-            optionsList.appendChild(item);
-        });
-    }
-
-    // ---------- 选择选项 ----------
-    function selectOption(optionKey) {
-        const q = questions[currentIndex];
-        // 记录作答
-        answers.push({
-            questionIndex: q.index,
-            optionKey: optionKey
-        });
-
-        // 进入下一题或提交结果
-        currentIndex++;
-        if (currentIndex < questions.length) {
-            renderQuestion();
-        } else {
-            // 全部完成,提交结果
-            submitAnswers();
-        }
-    }
-
-    // ---------- 提交答案并获取结果 ----------
-    async function submitAnswers() {
-        if (submitting) return;
-        submitting = true;
-
-        // 显示加载中
-        showScreen(resultScreen);
-        resultLoading.style.display = "block";
-        resultContent.style.display = "none";
-
-        // 标记当前在结果页,用于刷新检测
-        sessionStorage.setItem("mbti_result_entered", "1");
-
-        try {
-            const res = await fetch("/api/result", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ answers: answers })
-            });
-            const json = await res.json();
-            if (json.code !== 0) {
-                throw new Error(json.message || "结果生成失败");
-            }
-            renderResult(json.data);
-        } catch (err) {
-            alert("结果生成失败:" + err.message + "\n请返回首页重新测试。");
-            sessionStorage.removeItem("mbti_result_entered");
-            showScreen(homeScreen);
-        } finally {
-            submitting = false;
-        }
-    }
-
-    // ---------- 渲染结果 ----------
-    function renderResult(data) {
-        // 动物与类型
-        document.getElementById("result-emoji").textContent = data.emoji;
-        document.getElementById("result-animal-label").textContent = data.animal;
-        document.getElementById("result-type").textContent = data.mbtiType;
-        document.getElementById("result-nickname").textContent = data.nickname;
-        document.getElementById("result-traits").textContent = data.traits;
-
-        // 维度占比条
-        const barsWrap = document.getElementById("dimension-bars");
-        barsWrap.innerHTML = "";
-        ["EI", "SN", "TF", "JP"].forEach(function (dim) {
-            const d = data.dimensions[dim];
-            if (!d) return;
-            const names = DIM_NAMES[dim];
-            const bar = document.createElement("div");
-            bar.className = "dim-bar";
-            bar.innerHTML =
-                '<div class="dim-bar-label">' +
-                '<span class="dim-letter">' + names.left + " " + d.left.percent + "%</span>" +
-                '<span class="dim-letter">' + names.right + " " + d.right.percent + "%</span>" +
-                "</div>" +
-                '<div class="dim-bar-track">' +
-                '<div class="dim-bar-fill-left" style="width:' + d.left.percent + '%"></div>' +
-                '<div class="dim-bar-fill-right" style="width:' + d.right.percent + '%"></div>' +
-                "</div>";
-            barsWrap.appendChild(bar);
-        });
-
-        // 优势
-        const strengthsEl = document.getElementById("result-strengths");
-        strengthsEl.innerHTML = "";
-        data.strengths.forEach(function (s) {
-            const li = document.createElement("li");
-            li.textContent = s;
-            strengthsEl.appendChild(li);
-        });
-
-        // 劣势
-        const weaknessesEl = document.getElementById("result-weaknesses");
-        weaknessesEl.innerHTML = "";
-        data.weaknesses.forEach(function (w) {
-            const li = document.createElement("li");
-            li.textContent = w;
-            weaknessesEl.appendChild(li);
-        });
-
-        // 适合方向
-        const careersEl = document.getElementById("result-careers");
-        careersEl.innerHTML = "";
-        data.careers.forEach(function (c) {
-            const tag = document.createElement("span");
-            tag.className = "career-tag";
-            tag.textContent = c;
-            careersEl.appendChild(tag);
-        });
-
-        // 切换显示
-        resultLoading.style.display = "none";
-        resultContent.style.display = "block";
-    }
-
-    // ---------- 重新测试 ----------
-    function restart() {
-        sessionStorage.removeItem("mbti_result_entered");
-        answers = [];
-        currentIndex = 0;
-        submitting = false;
-        showScreen(homeScreen);
-    }
-
-    // ---------- 事件绑定 ----------
-    btnStart.addEventListener("click", startTest);
-    btnRestart.addEventListener("click", restart);
-
-    // ---------- 结果页刷新处理 ----------
-    // 需求:用户在结果页面刷新时,结果不保存,提示返回首页重新测试
-    window.addEventListener("load", function () {
-        if (sessionStorage.getItem("mbti_result_entered") === "1") {
-            // 清除标记,提示用户
-            sessionStorage.removeItem("mbti_result_entered");
-            // 确保停留在首页
-            showScreen(homeScreen);
-            setTimeout(function () {
-                alert("测试结果不保存,请重新开始测试吧~");
-            }, 100);
-        }
+  }
+  function renderQuestion() {
+    const q = questions[current], count = answers.filter(Boolean).length;
+    const percent = Math.round(count / questions.length * 100);
+    $('progress-text').textContent = `已完成 ${count} / ${questions.length} 题`;
+    $('progress-percent').textContent = percent + '%';
+    $('progress-fill').style.width = percent + '%';
+    $('progress-track').setAttribute('aria-valuenow', percent);
+    $('question-number').textContent = `QUESTION ${String(current + 1).padStart(2, '0')} / ${questions.length}`;
+    $('question-text').textContent = q.text;
+    $('options-list').replaceChildren();
+    q.options.forEach(option => {
+      const button = document.createElement('button');
+      button.className = 'option-item';
+      button.setAttribute('aria-pressed', String(answers[current] === option.key));
+      const key = document.createElement('span'); key.className = 'option-key'; key.textContent = option.key;
+      const text = document.createElement('span'); text.textContent = option.text;
+      button.append(key, text);
+      button.addEventListener('click', () => {
+        if (busy) return;
+        answers[current] = option.key;
+        document.querySelectorAll('.option-item').forEach(el => el.setAttribute('aria-pressed', String(el === button)));
+        $('next').disabled = false;
+        save();
+        const completed = answers.filter(Boolean).length;
+        $('progress-text').textContent = `已完成 ${completed} / ${questions.length} 题`;
+        const pct = Math.round(completed / questions.length * 100);
+        $('progress-percent').textContent = pct + '%';
+        $('progress-fill').style.width = pct + '%';
+        $('progress-track').setAttribute('aria-valuenow', pct);
+      });
+      $('options-list').append(button);
     });
+    $('previous').disabled = current === 0;
+    $('next').disabled = !answers[current];
+    $('next').textContent = current === questions.length - 1 ? '查看我的结果 ↗' : '下一题 →';
+    $('question-text').focus({preventScroll: true});
+  }
+  async function submit() {
+    if (busy) return;
+    const owner = Account.user?.id;
+    const missing = answers.findIndex(answer => !answer);
+    if (missing !== -1) { current = missing; renderQuestion(); notify('请先完成这道题目。'); return; }
+    busy = true;
+    $('next').disabled = true;
+    $('previous').disabled = true;
+    $('next').textContent = '正在生成结果…';
+    try {
+      const result = await request('/api/result', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({mode, attemptId, answers: answers.map((optionKey, index) => ({questionIndex: questions[index].index, optionKey}))})});
+      if (Account.user?.id !== owner) throw new Error('登录状态已变化，请在原账号的个人中心查看结果');
+      report = result;
+      renderResult();
+      storage.clear();
+      location.hash = 'history/' + report.recordId;
+      show('result');
+    } catch (error) { notify('结果生成失败，答案已保留。点击按钮重试：' + error.message); }
+    finally { busy = false; $('previous').disabled = current === 0; $('next').disabled = false; $('next').textContent = '查看我的结果 ↗'; }
+  }
+  function renderResult() {
+    $('result-mode').textContent = `${labels[mode]} · ${mode === 'full' ? 60 : 20} 题已完成`;
+    $('result-time').textContent = report.completedAt ? `完成于 ${Account.date(report.completedAt)} · 已保存到个人中心` : '';
+    $('result-emoji').textContent = report.emoji;
+    $('result-type').textContent = report.mbtiType;
+    $('result-nickname').textContent = `${report.nickname} · ${report.animal}`;
+    $('result-traits').textContent = report.traits;
+    $('dimension-bars').replaceChildren();
+    for (const [dim, names] of Object.entries(dimensions)) {
+      const data = report.dimensions[dim];
+      const bar = document.createElement('div'); bar.className = 'dim-bar';
+      const row = document.createElement('div'); row.className = 'dim-bar-label';
+      [data.left, data.right].forEach((side, index) => { const label = document.createElement('span'); label.textContent = `${names[index]} ${side.percent}%`; row.append(label); });
+      const track = document.createElement('div'); track.className = 'dim-bar-track';
+      const fill = document.createElement('div'); fill.className = 'dim-bar-fill'; fill.style.width = data.left.percent + '%';
+      track.append(fill); bar.append(row, track); $('dimension-bars').append(bar);
+    }
+    for (const [id, field, tag] of [['result-strengths', 'strengths', 'li'], ['result-weaknesses', 'weaknesses', 'li'], ['result-careers', 'careers', 'span']]) {
+      $(id).replaceChildren(...report[field].map(value => { const el = document.createElement(tag); el.textContent = value; return el; }));
+    }
+  }
+  document.querySelectorAll('[data-mode]').forEach(button => button.addEventListener('click', () => start(button.dataset.mode)));
+  $('resume').addEventListener('click', () => { const saved = readProgress(); if (saved) start(saved.mode, saved); });
+  $('previous').addEventListener('click', () => { if (current > 0 && !busy) { current--; renderQuestion(); save(); } });
+  $('next').addEventListener('click', () => {
+    if (busy || !answers[current]) return;
+    if (current < questions.length - 1) { current++; renderQuestion(); save(); }
+    else submit();
+  });
+  function home() { if (busy) return; location.hash = 'home'; refreshResume(); show('home'); }
+  document.querySelectorAll('.go-home').forEach(button => button.addEventListener('click', home));
+  window.addEventListener('hashchange', () => {
+    if (['#home', '#choose', '#dimensions', ''].includes(location.hash)) { show('home'); refreshResume(); if (location.hash === '#choose' || location.hash === '#dimensions') document.querySelector(location.hash).scrollIntoView(); }
+    else if (location.hash === '#test' && questions.length) show('test');
+    else if (location.hash === '#result' && report) show('result');
+    else if (['#login','#register','#profile','#admin'].includes(location.hash) || /^#history\/\d+$/.test(location.hash)) return;
+    else home();
+  });
+  $('download').addEventListener('click', () => {
+    if (!report) return;
+    const lines = ['本色 · 性格探索报告', `${labels[mode]} / ${mode === 'full' ? 60 : 20} 题 / ${report.completedAt ? Account.date(report.completedAt) : ''}`, `${report.mbtiType} · ${report.nickname} · ${report.animal}`, '', report.traits, '', '四个维度'];
+    for (const [dim, names] of Object.entries(dimensions)) lines.push(`${names[0]} ${report.dimensions[dim].left.percent}% / ${names[1]} ${report.dimensions[dim].right.percent}%`);
+    lines.push('', '可能的优势', ...report.strengths, '', '成长方向', ...report.weaknesses, '', '探索方向', ...report.careers, '', '本报告来自原创 MBTI 风格自我探索问卷，非官方量表，仅供参考。');
+    const url = URL.createObjectURL(new Blob(['\ufeff' + lines.join('\n')], {type: 'text/plain;charset=utf-8'}));
+    const link = document.createElement('a'); link.href = url; link.download = `本色-${report.mbtiType}-性格探索报告.txt`; link.click(); setTimeout(() => URL.revokeObjectURL(url), 1000);
+  });
+  window.addEventListener('account-change', () => {
+    if (identity !== Account.user?.id) {
+      identity = Account.user?.id;
+      questions = []; answers = []; current = 0; report = null; attemptId = null;
+    }
+    refreshResume();
+  });
+  window.addEventListener('open-history', event => {
+    const record = event.detail;
+    mode = record.mode; questions = []; answers = []; current = 0; attemptId = null;
+    report = {...record.report, recordId:record.id, startedAt:record.startedAt, completedAt:record.completedAt};
+    renderResult(); show('result');
+  });
+  Account.ready.then(refreshResume);
+  if (location.hash === '#test' || location.hash === '#result') location.hash = 'home';
 })();

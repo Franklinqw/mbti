@@ -33,7 +33,7 @@ class ScoringService:
             scores[dim] = {left: 0, right: 0}
         return scores
 
-    def calculate_mbti_type(self, answers: list[dict[str, Any]]) -> str:
+    def calculate_mbti_type(self, answers: list[dict[str, Any]], mode: str = "simple") -> str:
         """根据作答列表计算 MBTI 类型
 
         Args:
@@ -45,21 +45,28 @@ class ScoringService:
         Raises:
             ValueError: 答案数量不足或存在非法答案时抛出
         """
-        total: int = self._question_service.get_total_count()
+        total: int = self._question_service.get_total_count(mode)
         if len(answers) != total:
             raise ValueError(
                 f"答案数量不完整,需 {total} 题,实际 {len(answers)} 题")
 
         # 1. 校验并统计每个维度的得分
         scores: dict[str, dict[str, int]] = self._init_scores()
+        seen = set()
         for ans in answers:
+            if not isinstance(ans, dict):
+                raise ValueError("每条答案必须为对象")
+            index = ans.get("questionIndex")
+            if type(index) is not int or index in seen:
+                raise ValueError("题号必须为不重复的整数")
+            seen.add(index)
             q_index: int = ans.get("questionIndex")
             opt_key: str = ans.get("optionKey")
-            if not self._question_service.validate_answer(q_index, opt_key):
+            if not self._question_service.validate_answer(q_index, opt_key, mode):
                 raise ValueError(f"非法答案:第{q_index}题选项{opt_key}")
 
             question: Question | None = \
-                self._question_service.get_question_by_index(q_index)
+                self._question_service.get_question_by_index(q_index, mode)
             # 选取对应选项,累加该维度端点得分
             for opt in question.options:
                 if opt.key == opt_key:
@@ -77,7 +84,7 @@ class ScoringService:
 
         return "".join(mbti_chars)
 
-    def get_dimension_scores(self, answers: list[dict[str, Any]]) -> dict:
+    def get_dimension_scores(self, answers: list[dict[str, Any]], mode: str = "simple") -> dict:
         """获取各维度的详细得分(供结果页展示倾向比例)
 
         Args:
@@ -91,7 +98,7 @@ class ScoringService:
             q_index: int = ans.get("questionIndex")
             opt_key: str = ans.get("optionKey")
             question: Question | None = \
-                self._question_service.get_question_by_index(q_index)
+                self._question_service.get_question_by_index(q_index, mode)
             if question is None:
                 continue
             for opt in question.options:

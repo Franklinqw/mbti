@@ -1,132 +1,94 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>16型动物版MBTI性格测试</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <!-- 手写字体:马善政体(中文手写) + 站酷快乐体(标题趣味) + Caveat(英文点缀) -->
-    <link href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=ZCOOL+KuaiLe&family=Caveat:wght@500;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/static/css/style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f7f8f2">
+  <meta name="description" content="选择20题简版或60题完整版性格探索，了解你的四个性格偏好维度。">
+  <title>本色 · MBTI 性格探索</title>
+  <link rel="stylesheet" href="/static/css/style.css">
+  <script src="/static/js/account.js" defer></script>
+  <script src="/static/js/app.js" defer></script>
 </head>
 <body>
-    <div id="app">
-        <!-- ============ 首页 ============ -->
-        <section id="home-screen" class="screen active">
-            <div class="notebook">
-                <!-- 装饰涂鸦 -->
-                <span class="doodle doodle-star" style="top:8%;left:10%;">✦</span>
-                <span class="doodle doodle-heart" style="top:14%;right:12%;">♡</span>
-                <span class="doodle doodle-arrow" style="bottom:18%;left:8%;">↘</span>
-                <span class="doodle doodle-dot" style="top:40%;right:6%;">✿</span>
-
-                <div class="notebook-content">
-                    <div class="home-tag">~ 性格测试 ~</div>
-                    <h1 class="home-title">16型动物版<br>MBTI性格测试</h1>
-                    <div class="home-emoji-row">
-                        <span class="emoji-big">🦉</span>
-                        <span class="emoji-big">🦁</span>
-                        <span class="emoji-big">🦊</span>
-                        <span class="emoji-big">🐬</span>
-                    </div>
-                    <p class="home-desc">
-                        每个人都有一只专属的"灵魂动物"🐾<br>
-                        通过 20 道趣味测试题,<br>
-                        发现你对应的动物形象吧!
-                    </p>
-                    <button class="btn-primary" id="btn-start">
-                        开始测试 →
-                    </button>
-                    <div class="home-footer">✎ 共 20 题 · 约 3 分钟</div>
-                </div>
-            </div>
-        </section>
-
-        <!-- ============ 测试页 ============ -->
-        <section id="test-screen" class="screen">
-            <div class="notebook">
-                <div class="notebook-content">
-                    <div class="progress-bar-wrap">
-                        <div class="progress-text">
-                            <span id="current-q">第 1 题</span>
-                            <span class="progress-total">/ 共 <span id="total-q">20</span> 题</span>
-                        </div>
-                        <div class="progress-bar">
-                            <div class="progress-fill" id="progress-fill"></div>
-                        </div>
-                    </div>
-
-                    <div class="question-card" id="question-card">
-                        <div class="q-dimension-tag" id="dimension-tag">维度</div>
-                        <h2 class="question-text" id="question-text">题目内容</h2>
-                        <div class="options-list" id="options-list">
-                            <!-- 选项由 JS 动态生成 -->
-                        </div>
-                    </div>
-
-                    <div class="test-tip">点击选项即可进入下一题</div>
-                </div>
-            </div>
-        </section>
-
-        <!-- ============ 结果页 ============ -->
-        <section id="result-screen" class="screen">
-            <div class="notebook">
-                <span class="doodle doodle-star" style="top:6%;right:14%;">✦</span>
-                <span class="doodle doodle-heart" style="bottom:10%;left:10%;">♡</span>
-                <div class="notebook-content">
-                    <div class="result-loading" id="result-loading">
-                        <div class="loading-spinner"></div>
-                        <p>正在揭晓你的动物形象...</p>
-                    </div>
-
-                    <div class="result-content" id="result-content" style="display:none;">
-                        <div class="result-tag">~ 你的测试结果 ~</div>
-
-                        <div class="result-animal-wrap">
-                            <span class="result-emoji" id="result-emoji">🦉</span>
-                            <div class="result-animal-label" id="result-animal-label">猫头鹰</div>
-                        </div>
-
-                        <div class="result-type-box">
-                            <span class="result-type" id="result-type">INTJ</span>
-                            <span class="result-nickname" id="result-nickname">战略家</span>
-                        </div>
-
-                        <div class="result-traits" id="result-traits">
-                            性格特点描述
-                        </div>
-
-                        <!-- 维度占比 -->
-                        <div class="dimension-bars" id="dimension-bars">
-                            <!-- 由 JS 动态生成 -->
-                        </div>
-
-                        <div class="result-section">
-                            <h3 class="result-section-title">✦ 性格优势</h3>
-                            <ul class="result-list" id="result-strengths"></ul>
-                        </div>
-
-                        <div class="result-section">
-                            <h3 class="result-section-title">✦ 注意事项</h3>
-                            <ul class="result-list" id="result-weaknesses"></ul>
-                        </div>
-
-                        <div class="result-section">
-                            <h3 class="result-section-title">✦ 适合方向</h3>
-                            <div class="career-tags" id="result-careers"></div>
-                        </div>
-
-                        <button class="btn-primary" id="btn-restart">
-                            重新测试 ↺
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </section>
-    </div>
-
-    <script src="/static/js/app.js"></script>
+  <header class="site-header wrap">
+    <a class="brand" href="#home" aria-label="本色首页"><span class="brand-mark">✳</span> 本色<span class="brand-en">INNER YOU</span></a>
+    <nav aria-label="主导航"><a href="#home">性格测试</a><a href="#dimensions">了解 MBTI <span>↗</span></a><a id="nav-admin" href="#admin" hidden>管理员审核</a></nav>
+    <a id="nav-account" class="account-nav" href="#login">登录 / 注册 ↗</a>
+  </header>
+  <main id="main">
+    <section id="home-screen" class="screen wrap">
+      <div class="hero">
+        <div class="hero-copy">
+          <p class="eyebrow"><span></span> A LITTLE CLOSER TO YOURSELF</p>
+          <h1 tabindex="-1">世界有很多种可能，<br>你有自己的<span class="accent">本色<svg viewBox="0 0 200 14" aria-hidden="true"><path d="M3 10 Q100 -2 197 8"/></svg></span>。</h1>
+          <p class="hero-description">你从哪里获得能量，又如何看待世界？<br>跟随内心的直觉，在日常选择里发现真实的自己。</p>
+          <a href="#choose" class="hero-link">开启我的性格探索 <span>↗</span></a>
+          <div class="hero-meta"><span>四个性格维度</span><b>·</b><span>16 种独特人格</span><b>·</b><span>没有标准答案</span></div>
+        </div>
+        <div class="hero-art" aria-hidden="true">
+          <div class="art-orbit"></div><span class="art-note">BE YOUR OWN KIND.</span>
+          <div class="art-grid"><div class="shape-tile lilac"><div class="flower">✳</div><small>想象的边界</small></div><div class="shape-tile yellow"><div class="sun">✷</div><small>向内的光芒</small></div><div class="shape-tile green"><div class="leaf-pair"><i></i><i></i></div><small>生长的力量</small></div><div class="shape-tile pink"><div class="steps"><i></i><i></i><i></i></div><small>自己的节奏</small></div></div>
+          <span class="art-sticker">每一种你<br>都很特别 <span>✦</span></span><span class="art-caption">16 PERSONALITIES. ENDLESS POSSIBILITIES.</span>
+        </div>
+      </div>
+      <section class="selection" id="choose" aria-labelledby="choose-title">
+        <div class="section-heading"><div><p class="eyebrow">CHOOSE YOUR JOURNEY</p><h2 id="choose-title">用适合你的节奏，认识自己</h2></div><p>此刻的你，想从哪里开始？</p></div>
+        <div id="resume-banner" class="resume-banner" hidden><span id="resume-text"></span><button id="resume" class="text-button">继续上次测试 ↗</button></div>
+        <div class="mode-grid">
+          <article class="mode-card simple-card"><div class="card-top"><span class="mode-icon">↗</span><span class="pill">轻松入门</span></div><div class="mode-title"><h3>简版测试</h3><span>THE QUICK DISCOVERY</span></div><p>一点时间，一次与自己的初次见面。<br>从日常情境出发，发现你的性格轮廓。</p><div class="mode-meta"><span><b>20</b> 道精选题目</span><span>◷ 约 3–5 分钟</span></div><ul><li>快速探索四个性格维度</li><li>获得人格类型与专属动物形象</li></ul><button class="start-button" data-mode="simple">开始简版测试 <span>→</span></button></article>
+          <article class="mode-card full-card"><div class="card-top"><span class="mode-icon">✳</span><span class="pill">更多情境 · 更深入探索</span></div><div class="mode-title"><h3>完整版测试</h3><span>THE DEEP EXPLORATION</span></div><p>留一段安静的时间，听一听内心的声音。<br>在更丰富的情境里，看见自己的不同面向。</p><div class="mode-meta"><span><b>60</b> 道探索题目</span><span>◷ 约 10–15 分钟</span></div><ul><li>每个维度 15 题，覆盖更多生活场景</li><li>获得人格解析、维度占比与成长建议</li></ul><button class="start-button" data-mode="full">开始完整版测试 <span>→</span></button></article>
+        </div>
+        <p class="privacy-note">♧ 注册审核后即可测试 · 每次结果自动归档 · 在个人中心回顾自己的变化</p>
+      </section>
+      <section class="dimensions-section" id="dimensions"><div class="section-heading"><div><p class="eyebrow">FOUR DIMENSIONS, ONE UNIQUE YOU</p><h2>四个视角，拼出独特的你</h2></div><span class="tiny-spark">✳</span></div><div class="dimension-grid"><article><span>01 / ENERGY</span><h3>能量来源 <b>E / I</b></h3><p>从与人互动中充电，<br>还是在独处中恢复能量？</p></article><article><span>02 / INFORMATION</span><h3>获取信息 <b>S / N</b></h3><p>关注具体的事实细节，<br>还是联想背后的可能性？</p></article><article><span>03 / DECISIONS</span><h3>决策方式 <b>T / F</b></h3><p>更看重逻辑和客观标准，<br>还是价值与人的感受？</p></article><article><span>04 / LIFESTYLE</span><h3>生活节奏 <b>J / P</b></h3><p>喜欢有计划地推进，<br>还是留出灵活探索的空间？</p></article></div></section>
+      <div class="gentle-note"><span>✦</span><p>性格是一幅流动的画，不是一张固定的标签。<small>本测试为原创 MBTI 风格自我探索问卷，非官方 MBTI 量表。结果仅供自我了解与交流参考。</small></p></div>
+    </section>
+    <section id="test-screen" class="screen test-wrap" hidden>
+      <div class="test-toolbar"><button class="text-button go-home">← 返回首页</button><span id="test-mode"></span><span id="saved-status">本地自动保存</span></div>
+      <div class="test-progress"><span id="progress-text"></span><span id="progress-percent"></span></div><div id="progress-track" class="progress-track" role="progressbar" aria-label="答题进度" aria-valuemin="0" aria-valuemax="100"><div id="progress-fill"></div></div>
+      <div class="question-panel"><p id="question-number" class="eyebrow"></p><h1 id="question-text" tabindex="-1"></h1><p class="question-hint">选择更接近平时自己的答案，无需过度思考。</p><div id="options-list" class="options-list" role="group" aria-labelledby="question-text"></div><div class="question-navigation"><button id="previous" class="text-button">← 上一题</button><span>没有对错，跟随你的第一感觉</span><button id="next" class="primary-button" disabled>下一题 →</button></div></div>
+      <p class="test-footnote">✳ 不必成为别人，诚实地做你自己就好。</p>
+    </section>
+    <section id="result-screen" class="screen result-wrap" hidden>
+      <p class="eyebrow">NICE TO MEET THE REAL YOU</p><p id="result-mode" class="muted"></p><p id="result-time" class="muted result-date"></p><div class="result-heading"><span id="result-emoji"></span><div><p>你的性格探索结果</p><h1 id="result-type" tabindex="-1"></h1><h2 id="result-nickname"></h2></div></div><p id="result-traits" class="result-traits"></p><div class="result-box"><h2>你的四维性格倾向</h2><div id="dimension-bars"></div><p class="muted">百分比表示本次答案的倾向分布，不是能力分数；接近 50% 表示两侧偏好较为均衡。</p></div><div class="result-details"><article class="result-box"><h2>✦ 你可能的优势</h2><ul id="result-strengths"></ul></article><article class="result-box"><h2>♧ 可以尝试的成长方向</h2><ul id="result-weaknesses"></ul></article></div><div class="result-box"><h2>值得探索的兴趣与工作方向</h2><div id="result-careers" class="career-tags"></div><p class="muted">这些方向供探索参考，请结合自己的兴趣、技能和实际经历判断。</p></div><div class="result-actions"><button id="download" class="primary-button">保存文字报告 ↓</button><a href="#profile" class="text-button">返回个人中心</a><button class="text-button go-home">重新选择测试 ↗</button></div><p class="result-disclaimer">每个人都比四个字母更丰富。这是一份原创自我探索问卷的结果，不是心理诊断或官方 MBTI 测评。</p>
+    </section>
+    <section id="login-screen" class="screen account-wrap" hidden>
+      <p class="eyebrow">WELCOME BACK</p><h1 tabindex="-1">继续认识自己</h1><p class="muted">使用已通过管理员审核的账号登录，测试结果会自动保存。</p>
+      <form id="login-form" class="account-form">
+        <label>用户名或邮箱<input name="identifier" autocomplete="username" required maxlength="254" placeholder="输入用户名或邮箱"></label>
+        <label>密码<input type="password" name="password" autocomplete="current-password" required minlength="8" maxlength="128" placeholder="输入登录密码"></label>
+        <p id="login-message" class="form-message" role="status"></p><button type="submit" class="primary-button">登录 →</button>
+      </form><p class="account-switch">还没有账号？<a href="#register">申请注册 ↗</a></p>
+    </section>
+    <section id="register-screen" class="screen account-wrap" hidden>
+      <p class="eyebrow">YOUR JOURNEY STARTS HERE</p><h1 tabindex="-1">为探索留一个位置</h1><p class="muted">注册后将通知管理员审核，通过后即可登录。</p>
+      <form id="register-form" class="account-form">
+        <label>用户名<input name="username" autocomplete="username" required minlength="3" maxlength="32" placeholder="3–32 位中文、字母、数字或下划线"></label>
+        <label>邮箱<input type="email" name="email" autocomplete="email" required maxlength="254" placeholder="用于识别你的账号"></label>
+        <label>密码<input type="password" name="password" autocomplete="new-password" required minlength="8" maxlength="20" placeholder="8–20 位密码"></label>
+        <label>确认密码<input type="password" name="confirmPassword" autocomplete="new-password" required minlength="8" maxlength="20" placeholder="再次输入密码"></label>
+        <p id="register-message" class="form-message" role="status"></p><button type="submit" class="primary-button">提交注册申请 →</button>
+      </form><p class="account-switch">已有账号？<a href="#login">返回登录 ↗</a></p>
+    </section>
+    <section id="profile-screen" class="screen profile-wrap wrap" hidden>
+      <div class="section-heading"><div><p class="eyebrow">MY INNER WORLD</p><h1 tabindex="-1">我的探索档案</h1><p id="profile-identity" class="muted"></p></div><button id="logout" class="text-button">退出登录 ↗</button></div>
+      <div class="profile-layout"><div><div class="section-heading"><h2>每一次，都值得被记住</h2><a href="#choose" class="text-button">开始新测试 ↗</a></div><p id="history-state" class="muted" role="status"></p><div id="history-list" class="history-list"></div><div class="pagination"><button id="history-prev" class="text-button">← 上一页</button><span id="history-page"></span><button id="history-next" class="text-button">下一页 →</button></div></div>
+      <aside class="result-box password-box"><h2>账号安全</h2><p class="muted">修改密码后，需要重新登录。</p><form id="password-form" class="account-form"><label>当前密码<input type="password" name="oldPassword" autocomplete="current-password" required maxlength="128"></label><label>新密码<input type="password" name="newPassword" autocomplete="new-password" required minlength="8" maxlength="20"></label><label>确认新密码<input type="password" name="confirmPassword" autocomplete="new-password" required minlength="8" maxlength="20"></label><p id="password-message" class="form-message" role="status"></p><button class="primary-button" type="submit">修改密码</button></form></aside></div>
+    </section>
+    <section id="admin-screen" class="screen profile-wrap wrap" hidden>
+      <div class="section-heading"><div><p class="eyebrow">ADMINISTRATION</p><h1 tabindex="-1">用户管理与注册审核</h1><p class="muted">管理账号状态、重置密码和审核申请。激活的账号仍需通过审核才能登录。</p></div><a href="#profile" class="text-button">我的个人中心 ↗</a></div>
+      <div class="admin-filters" role="group" aria-label="按审核状态筛选"><button data-status="all" class="filter-button" aria-pressed="true">全部用户</button><button data-status="pending" class="filter-button" aria-pressed="false">待审核</button><button data-status="approved" class="filter-button" aria-pressed="false">已通过</button><button data-status="rejected" class="filter-button" aria-pressed="false">已拒绝</button></div>
+      <div class="admin-state-filter"><label>账号状态 <select id="account-state-filter"><option value="all">全部状态</option><option value="active">激活</option><option value="closed">封闭</option></select></label></div>
+      <div class="bulk-toolbar"><label><input type="checkbox" id="select-all-users"> 全选本页可管理用户</label><span id="selection-count">已选择 0 人</span><button id="bulk-activate" class="text-button" disabled>批量激活</button><button id="bulk-close" class="text-button" disabled>批量封闭</button><button id="bulk-reset" class="text-button" disabled>批量重置密码</button></div>
+      <p id="admin-notice" class="form-message success" role="status"></p>
+      <p id="admin-state" class="muted" role="status"></p><div id="admin-list" class="admin-list"></div><div class="pagination"><button id="admin-prev" class="text-button">← 上一页</button><span id="admin-page"></span><button id="admin-next" class="text-button">下一页 →</button></div>
+    </section>
+    <dialog id="reset-password-dialog" aria-labelledby="reset-dialog-title"><h2 id="reset-dialog-title">重置用户密码</h2><p id="reset-target" class="muted"></p><form id="admin-reset-form" class="account-form"><label>新密码（8–20 位）<input type="password" name="newPassword" autocomplete="new-password" required minlength="8" maxlength="20"></label><label>确认新密码<input type="password" name="confirmPassword" autocomplete="new-password" required minlength="8" maxlength="20"></label><p id="admin-reset-message" class="form-message" role="status"></p><div class="review-actions"><button class="primary-button" type="submit">确认重置密码</button><button class="text-button" type="button" data-close-dialog="reset-password-dialog">取消</button></div></form></dialog>
+    <dialog id="generated-passwords-dialog" aria-labelledby="generated-dialog-title"><h2 id="generated-dialog-title">批量重置已完成</h2><p class="muted">每个账号使用不同的新密码。请保存后分别交给对应用户，关闭后本页面不再显示。</p><label class="review-label">本次生成的账号与密码<textarea id="generated-passwords" rows="8" readonly></textarea></label><div class="review-actions"><button id="download-generated-passwords" class="primary-button" type="button">下载本次密码清单</button><button class="text-button" type="button" data-close-dialog="generated-passwords-dialog">关闭</button></div></dialog>
+    <p id="status-message" role="status" aria-live="polite" hidden></p>
+    <noscript><p class="wrap">请启用 JavaScript 后开始测试。</p></noscript>
+  </main>
+  <footer class="site-footer wrap"><a class="brand" href="#home"><span class="brand-mark">✳</span> 本色</a><span>认识自己，是一场值得开始的旅行。</span><span>MADE FOR YOUR INNER WORLD</span></footer>
 </body>
 </html>

@@ -24,7 +24,7 @@ class ResultService:
         """
         return RESULT_MAP.get(mbti_type.upper())
 
-    def build_result_detail(self, answers: list[dict]) -> dict:
+    def build_result_detail(self, answers: list[dict], mode: str = "simple") -> dict:
         """根据完整作答计算并构造结果详情
 
         Args:
@@ -37,7 +37,7 @@ class ResultService:
             ValueError: MBTI 类型不在 16 种之内时抛出
         """
         # 1. 计算 MBTI 类型
-        mbti_type: str = self._scoring_service.calculate_mbti_type(answers)
+        mbti_type: str = self._scoring_service.calculate_mbti_type(answers, mode)
 
         # 2. 匹配动物与性格结果
         result: PersonalityResult | None = self.get_result_by_type(mbti_type)
@@ -46,7 +46,7 @@ class ResultService:
 
         # 3. 获取各维度占比,供前端展示倾向强度
         dimension_detail: dict = \
-            self._scoring_service.get_dimension_scores(answers)
+            self._scoring_service.get_dimension_scores(answers, mode)
 
         return {
             "mbtiType": result.mbti_type,
