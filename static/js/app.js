@@ -86,6 +86,7 @@
   }
   function renderQuestion() {
     $('question-hint').textContent = tests[mode].instruction || '选择更接近平时自己的答案，无需过度思考。';
+    $('navigation-hint').textContent = current === questions.length - 1 ? '选择后自动生成结果' : '选择后自动进入下一题';
     const q = questions[current], count = answers.filter(Boolean).length;
     const percent = Math.round(count / questions.length * 100);
     $('progress-text').textContent = `已完成 ${count} / ${questions.length} 题`;
@@ -102,11 +103,10 @@
       const key = document.createElement('span'); key.className = 'option-key'; key.textContent = option.key;
       const text = document.createElement('span'); text.textContent = option.text;
       button.append(key, text);
-      button.addEventListener('click', () => {
-        if (busy) return;
+      button.addEventListener('click', event => {
+        if (busy || event.detail > 1) return;
         answers[current] = option.key;
         document.querySelectorAll('.option-item').forEach(el => el.setAttribute('aria-pressed', String(el === button)));
-        $('next').disabled = false;
         save();
         const completed = answers.filter(Boolean).length;
         $('progress-text').textContent = `已完成 ${completed} / ${questions.length} 题`;
@@ -114,12 +114,17 @@
         $('progress-percent').textContent = pct + '%';
         $('progress-fill').style.width = pct + '%';
         $('progress-track').setAttribute('aria-valuenow', pct);
+        if (current < questions.length - 1) {
+          current++;
+          renderQuestion();
+          save();
+        } else {
+          submit();
+        }
       });
       $('options-list').append(button);
     });
     $('previous').disabled = current === 0;
-    $('next').disabled = !answers[current];
-    $('next').textContent = current === questions.length - 1 ? '查看我的结果 ↗' : '下一题 →';
     $('question-text').focus({preventScroll: true});
   }
   async function submit() {
@@ -128,9 +133,9 @@
     const missing = answers.findIndex(answer => !answer);
     if (missing !== -1) { current = missing; renderQuestion(); notify('请先完成这道题目。'); return; }
     busy = true;
-    $('next').disabled = true;
     $('previous').disabled = true;
-    $('next').textContent = '正在生成结果…';
+    document.querySelectorAll('.option-item').forEach(button => button.disabled = true);
+    $('navigation-hint').textContent = '正在生成结果…';
     try {
       const result = await request('/api/result', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({mode, attemptId, answers: answers.map((optionKey, index) => ({questionIndex: questions[index].index, optionKey}))})});
       if (Account.user?.id !== owner) throw new Error('登录状态已变化，请在原账号的个人中心查看结果');
@@ -139,8 +144,14 @@
       storage.clear();
       location.hash = 'history/' + report.recordId;
       show('result');
-    } catch (error) { notify('结果生成失败，答案已保留。点击按钮重试：' + error.message); }
-    finally { busy = false; $('previous').disabled = current === 0; $('next').disabled = false; $('next').textContent = '查看我的结果 ↗'; }
+    } catch (error) {
+      $('navigation-hint').textContent = '答案已保留，重新选择本题选项即可重试';
+      notify('结果生成失败，答案已保留。重新选择本题选项以重试：' + error.message);
+    } finally {
+      busy = false;
+      $('previous').disabled = current === 0;
+      document.querySelectorAll('.option-item').forEach(button => button.disabled = false);
+    }
   }
   function renderResult() {
     const cfg = tests[mode];
@@ -190,11 +201,6 @@
   document.querySelectorAll('[data-mode]').forEach(button => button.addEventListener('click', () => start(button.dataset.mode)));
   $('resume').addEventListener('click', () => { const saved = readProgress(); if (saved) start(saved.mode, saved); });
   $('previous').addEventListener('click', () => { if (current > 0 && !busy) { current--; renderQuestion(); save(); } });
-  $('next').addEventListener('click', () => {
-    if (busy || !answers[current]) return;
-    if (current < questions.length - 1) { current++; renderQuestion(); save(); }
-    else submit();
-  });
   function home() { if (busy) return; location.hash = 'home'; refreshResume(); show('home'); }
   document.querySelectorAll('.go-home').forEach(button => button.addEventListener('click', home));
   window.addEventListener('hashchange', () => {
