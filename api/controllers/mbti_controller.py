@@ -12,7 +12,7 @@ from sqlalchemy import select
 from models.database import TestAttempt, TestResult, get_db
 from services.auth_service import current_user, login_required
 
-from services.question_service import question_service
+from services.question_service import question_service, SUPPORTED_MODES
 from services.result_service import result_service
 from utils.response import success, error, CODE_PARAM_ERROR
 
@@ -28,7 +28,7 @@ def get_questions() -> Any:
     返回所有题目的序号、题干与选项,供前端逐题展示。
     """
     mode = request.args.get("mode", "simple")
-    if mode not in ("simple", "full"):
+    if not isinstance(mode, str) or mode not in SUPPORTED_MODES:
         return jsonify(error(message="无效的测试模式", code=CODE_PARAM_ERROR)), 400
     questions: list[dict] = question_service.get_question_dicts(mode)
     total: int = question_service.get_total_count(mode)
@@ -49,7 +49,7 @@ def attempt_payload(attempt):
 def create_attempt():
     data = request.get_json(silent=True)
     mode = data.get('mode') if isinstance(data, dict) else None
-    if mode not in ('simple', 'full'):
+    if not isinstance(mode, str) or mode not in SUPPORTED_MODES:
         return jsonify(error('无效的测试模式')), 400
     attempt = TestAttempt(id=str(uuid4()), user_id=current_user().id, mode=mode)
     db = get_db()
@@ -88,7 +88,7 @@ def submit_result() -> Any:
     if not isinstance(data, dict):
         return jsonify(error(message="请求体必须为对象", code=CODE_PARAM_ERROR)), 400
     mode = data.get("mode", "simple")
-    if mode not in ("simple", "full"):
+    if not isinstance(mode, str) or mode not in SUPPORTED_MODES:
         return jsonify(error(message="无效的测试模式", code=CODE_PARAM_ERROR)), 400
     answers: list[dict] = data.get("answers")
 

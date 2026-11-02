@@ -166,3 +166,17 @@ python scripts/check_mysql.py
 - `static/js/account.js` / `static/js/app.js`：账号页面和测试交互。
 
 本测试是原创 MBTI 风格自我探索问卷，不是官方 MBTI 量表或心理诊断。
+
+## 新增：沟通风格与大五人格
+
+首页新增两个入口，均包含答题、返回修改、本机进度恢复、结果展示、文字报告下载及按账号保存历史，不含支付或收费模块。新报告复用现有表，类型代码 COMM / BIG5 均为4字符，无需扩大数据库字段。
+
+- **沟通风格 communication**：24 道原创五级频率题，每维6题（3正向、3反向），覆盖直接表达、倾听协调、分析澄清、暂缓回应。请按最近一个月通常表现作答；四个维度独立呈现，无强制赢家或并列优先级。
+- **大五人格 big_five**：50道五级符合度题，采用 IPIP Big-Five Factor Markers 的每维10题结构、正反向键及本项目中文工作译文，维度为外向性、宜人性、尽责性、情绪稳定性、智性与想象开放性。不是商业 NEO 或 MBTI 量表；本中文译文和报告解释未独立验证，不复用英文版本信效度数值作为本项目指标。
+- 新题库允许 A–E 五个选项，旧四种测试仍保持 A/B；计分与恢复进度按模式区分。
+- 每个维度正向题计1–5，反向计5–1，报告显示总分、均分和量程换算分：`100 × (总分 - 题数) / (4 × 题数)`。各维度不要求加总100，结果不是百分位或能力分数。40/60描述分界只是产品解释规则，不是常模或诊断阈值。
+- 五维结果逐项解读，提供可尝试的小练习；不把五维换算成MBTI，不把情绪稳定性作为疾病判断，也不把智性与想象开放性当智力测试。
+
+来源：[IPIP计分键](https://ipip.ori.org/newBigFive5broadKey.htm)、[施测说明](https://ipip.ori.org/new_ipip-50-item-scale.htm)、[正反向计分](https://ipip.ori.org/newScoringInstructions.htm)。IPIP原始题目公共领域；本站提供中文工作译文及自编解读。
+
+题库及结果内容在 `models/communication_questions.py`、`models/big_five_questions.py` 和 `services/rating_report_service.py`；新增测试可运行 `python -m unittest test_rating_modes -v`。此前审计脚本仍限定旧四种测试，避免把旧审计结果与新五级题库混为一谈。

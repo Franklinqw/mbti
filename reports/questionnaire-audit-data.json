@@ -1,0 +1,212 @@
+{
+  "simple": {
+    "questions": 20,
+    "options": 40,
+    "dimensions": {
+      "EI": 5,
+      "SN": 5,
+      "TF": 5,
+      "JP": 5
+    },
+    "option_side_counts": {
+      "E": 5,
+      "I": 5,
+      "S": 5,
+      "N": 5,
+      "T": 5,
+      "F": 5,
+      "J": 5,
+      "P": 5
+    },
+    "A_side_counts": {
+      "E": 5,
+      "S": 5,
+      "T": 5,
+      "J": 5
+    },
+    "B_side_counts": {
+      "I": 5,
+      "N": 5,
+      "F": 5,
+      "P": 5
+    },
+    "duplicate_exact_stems": []
+  },
+  "full": {
+    "questions": 60,
+    "options": 120,
+    "dimensions": {
+      "EI": 15,
+      "SN": 15,
+      "TF": 15,
+      "JP": 15
+    },
+    "option_side_counts": {
+      "E": 15,
+      "I": 15,
+      "S": 15,
+      "N": 15,
+      "T": 15,
+      "F": 15,
+      "J": 15,
+      "P": 15
+    },
+    "A_side_counts": {
+      "E": 10,
+      "S": 10,
+      "T": 10,
+      "J": 10,
+      "I": 5,
+      "N": 5,
+      "F": 5,
+      "P": 5
+    },
+    "B_side_counts": {
+      "I": 10,
+      "N": 10,
+      "F": 10,
+      "P": 10,
+      "E": 5,
+      "S": 5,
+      "T": 5,
+      "J": 5
+    },
+    "duplicate_exact_stems": []
+  },
+  "pdp": {
+    "questions": 20,
+    "options": 40,
+    "dimensions": {
+      "PDP": 20
+    },
+    "option_side_counts": {
+      "TIGER": 8,
+      "PEACOCK": 8,
+      "OWL": 8,
+      "KOALA": 8,
+      "CHAMELEON": 8
+    },
+    "A_side_counts": {
+      "TIGER": 3,
+      "OWL": 4,
+      "KOALA": 5,
+      "CHAMELEON": 6,
+      "PEACOCK": 2
+    },
+    "B_side_counts": {
+      "PEACOCK": 6,
+      "KOALA": 3,
+      "CHAMELEON": 2,
+      "OWL": 4,
+      "TIGER": 5
+    },
+    "duplicate_exact_stems": [],
+    "exact_analysis": {
+      "answer_patterns": 1048576,
+      "distinct_score_vectors": 2595,
+      "tied_top_patterns": 342756,
+      "tie_percent": 32.6878,
+      "winners_under_uniform_random_answers": {
+        "CHAMELEON": 141827,
+        "KOALA": 206689,
+        "OWL": 157504,
+        "TIGER": 294578,
+        "PEACOCK": 247978
+      },
+      "pair_frequencies": {
+        "PEACOCK / TIGER": 3,
+        "KOALA / OWL": 1,
+        "CHAMELEON / OWL": 4,
+        "CHAMELEON / KOALA": 2,
+        "KOALA / TIGER": 4,
+        "OWL / PEACOCK": 3,
+        "KOALA / PEACOCK": 1,
+        "CHAMELEON / PEACOCK": 1,
+        "CHAMELEON / TIGER": 1
+      }
+    }
+  },
+  "mental_age": {
+    "questions": 15,
+    "options": 30,
+    "dimensions": {
+      "AGE": 15
+    },
+    "option_side_counts": {
+      "PLAY": 11,
+      "DISCIPL": 9,
+      "STEADY": 5,
+      "CURIOS": 5
+    },
+    "A_side_counts": {
+      "PLAY": 5,
+      "DISCIPL": 5,
+      "STEADY": 2,
+      "CURIOS": 3
+    },
+    "B_side_counts": {
+      "DISCIPL": 4,
+      "PLAY": 6,
+      "STEADY": 3,
+      "CURIOS": 2
+    },
+    "duplicate_exact_stems": [],
+    "exact_analysis": {
+      "answer_patterns": 32768,
+      "raw_score_range": [
+        30,
+        62
+      ],
+      "reachable_ages": [
+        12,
+        14,
+        15,
+        16,
+        18,
+        20,
+        21,
+        22,
+        24,
+        26,
+        27,
+        28,
+        30,
+        32,
+        33,
+        34,
+        36,
+        38,
+        39,
+        40,
+        42,
+        44,
+        45,
+        46,
+        48,
+        50,
+        51,
+        52,
+        54,
+        56,
+        57,
+        58,
+        60
+      ],
+      "band_counts_under_uniform_random_answers": {
+        "成熟内核": 21458,
+        "轻熟灵魂": 5774,
+        "岁月智者": 3864,
+        "元气青年": 1606,
+        "灵魂小孩": 66
+      },
+      "displayed_percentage_totals": {
+        "99": 5212,
+        "100": 23032,
+        "101": 4524
+      },
+      "equal_score_question_ids": [
+        5
+      ]
+    }
+  }
+}

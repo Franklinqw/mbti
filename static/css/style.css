@@ -1125,3 +1125,4 @@ dialog h2 { font-size:21px; margin-bottom:12px; }
 dialog .review-label { margin-top:20px; }
 #generated-passwords { font-family:Consolas,monospace; font-size:13px; white-space:pre; }
 .admin-filters { flex-wrap:wrap; }
+.result-type.descriptive-title, #result-type.descriptive-title { font-size:clamp(26px,5vw,40px); letter-spacing:0; }

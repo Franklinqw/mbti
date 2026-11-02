@@ -33,19 +33,22 @@ DIMENSION_NAMES: dict[str, tuple[str, str]] = {
 class Option:
     """题目选项"""
 
-    def __init__(self, key: str, text: str, dimension: Dimension, side: str) -> None:
-        """初始化选项
+    def __init__(self, key: str, text: str, dimension: str, side: str,
+                 score: int = 1) -> None:
+        """初始化题目选项
 
         Args:
             key: 选项标识(A / B)
             text: 选项文案
-            dimension: 所属维度(EI / SN / TF / JP)
-            side: 维度端点字母(E / I / S / N / T / F / J / P)
+            dimension: 所属维度(EI / SN / TF / JP,或其他测试的分组键)
+            side: 维度端点字母(E / I / S / N / T / F / J / P),或其他测试的计分桶
+            score: 选项分值,供累加型计分使用,对立二选一测试用默认值
         """
         self.key: str = key
         self.text: str = text
         self.dimension: str = dimension
         self.side: str = side
+        self.score: int = score
 
     def to_dict(self) -> dict:
         """转换为字典(供 API 序列化)"""

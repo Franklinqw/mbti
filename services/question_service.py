@@ -4,6 +4,20 @@
 """
 from models.questions import QUESTIONS, Question
 from models.extended_questions import FULL_QUESTIONS
+from models.pdp_questions import PDP_QUESTIONS
+from models.mental_age_questions import MENTAL_AGE_QUESTIONS
+from models.big_five_questions import BIG_FIVE_QUESTIONS
+from models.communication_questions import COMMUNICATION_QUESTIONS
+
+# 支持的测试类型与对应题库
+SUPPORTED_MODES: dict[str, list[Question]] = {
+    'communication': COMMUNICATION_QUESTIONS,
+    'big_five': BIG_FIVE_QUESTIONS,
+    'simple': QUESTIONS,
+    'full': FULL_QUESTIONS,
+    'pdp': PDP_QUESTIONS,
+    'mental_age': MENTAL_AGE_QUESTIONS,
+}
 
 
 class QuestionService:
@@ -14,9 +28,9 @@ class QuestionService:
         self._questions: list[Question] = QUESTIONS
 
     def _select(self, mode: str) -> list[Question]:
-        if mode not in ("simple", "full"):
-            raise ValueError("测试模式必须为 simple 或 full")
-        return FULL_QUESTIONS if mode == "full" else self._questions
+        if mode not in SUPPORTED_MODES:
+            raise ValueError("测试模式必须为 simple、full、pdp 或 mental_age")
+        return SUPPORTED_MODES[mode]
 
     def get_all_questions(self, mode: str = "simple") -> list[Question]:
         """获取全部题目(按序号排序)

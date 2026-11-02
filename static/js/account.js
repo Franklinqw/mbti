@@ -7,7 +7,7 @@
   let adminAccountState = 'all', adminRows = [], adminLoading = false, resetTarget = null;
   const selectedUsers = new Set();
   let adminRequestVersion = 0;
-  const modes = {simple: '简版测试', full: '完整版测试'};
+  const modes = {simple: '简版测试', full: '完整版测试', pdp: 'PDP 动物人格', mental_age: '心理年龄测试', communication: '沟通风格测试', big_five: '大五人格测试'};
   const date = value => new Date(value).toLocaleString('zh-CN', {hour12:false});
   function element(tag, text, className) {
     const el = document.createElement(tag);
